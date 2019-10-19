@@ -5,6 +5,40 @@ const jwt = require("jsonwebtoken");
 const { SECRET } = require("../constants");
 const { cpuUsage, cachedMemory, getGeneralInfo, check_net } = require("../services/user.services");
 
+
+exports.registerUser = async (req, res) => {
+
+    var datetime = new Date();
+    try {
+        console.log("i am Here", req.body);
+        let user = await User.findOne({ email: req.body.email });
+        if (user) {
+            return res.status(400).send("That user already exisits!");
+        } else {
+            const token = await jwt.sign({ email: req.body.email }, "SECRET", {
+                expiresIn: "1d"
+            });
+            let userObj = {
+                firstname: req.body.firstname,
+                lastname: req.body.lastname,
+                email: req.body.email,
+                password: req.body.password,
+
+            };
+            console.log("userobj : ", userObj);
+            const salt = bcrypt.genSaltSync(10);
+            userObj.password = bcrypt.hashSync(userObj.password, salt);
+            let result = await User(userObj).save();
+            console.log("result : ", result);
+            res.send(result);
+        }
+    }
+        catch (exception) {
+            console.log(exception);
+            res.status(400).send(exception);
+          }
+        
+    };
 exports.login = async (req, res) => {
     const user = await User.findOne({ email: req.body.email });
     if (!user) return res.status(401).send("User with email does not exist. Please try again");
