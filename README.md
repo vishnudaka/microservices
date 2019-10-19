@@ -8,7 +8,7 @@ do "npm install" for node modules and package.json files
 api for signup
 
 
-router.post('/signUp', userController.registerUser);
+post http://localhost:3000/api/signUp
 
 
 
